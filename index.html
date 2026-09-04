@@ -41,26 +41,30 @@
 
       <!-- Disparo no botão -->                                                                                                                                                            
       <script>                            
-          async function dispararLead() {                                                                                                                                                  
-              const eventId = 'CompleteRegistration' + Date.now();                                                                                                                                        
-                                              
-              fbq('track', 'CompleteRegistration', {}, { eventID: eventId });                                                                                                                              
-                                                                                                                                                                                         
-              try {                                                                                                                                                                        
-                  await fetch(API_URL, {                                                                                                                                                   
-                      method: 'POST',                                                                                                                                                      
-                      headers: { 'Content-Type': 'application/json' },                                                                                                                     
-                      body: JSON.stringify({                                                                                                                                             
-                          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] || null,
-                          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1] || null,
-                          userAgent: navigator.userAgent,
-                          pageUrl: window.location.href,
-                          eventId: eventId                                                                                                                                                 
-                      })
-                  });                                                                                                                                                                      
-              } catch(e) {}                                                                                                                                                              
-                                                                                                                                                                                           
-              window.location.href = BOTAO_LINK;                                                                                                                                         
+          async function dispararLead() {
+              const eventId = 'CompleteRegistration' + Date.now();
+
+              fbq('track', 'CompleteRegistration', {}, { eventID: eventId });
+
+              const timeout = new Promise(resolve => setTimeout(resolve, 1500));
+              try {
+                  await Promise.race([
+                      fetch(API_URL, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                              fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] || null,
+                              fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1] || null,
+                              userAgent: navigator.userAgent,
+                              pageUrl: window.location.href,
+                              eventId: eventId
+                          })
+                      }),
+                      timeout
+                  ]);
+              } catch(e) {}
+
+              window.location.href = BOTAO_LINK;
           }                               
       </script>
                                                                                                                                                                                            
